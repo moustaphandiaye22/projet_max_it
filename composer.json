@@ -1,0 +1,22 @@
+{
+    "name": "moustapha-ndiaye/projet_max_it",
+    "description": "projet max it",
+    "autoload": {
+        "psr-4": {
+            "src\\": "src/",
+            "app\\": "app/",
+            "App\\Core\\": "app/core/",
+            "App\\Core\\Abstract\\": "app/core/abstract/",
+            "App\\Core\\middlewares\\": "app/core/middlewares/"
+        }
+    },
+    "authors": [
+        {
+            "name": "moustaphabdiaye22",
+            "email": "tziprincii434@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    }
+}
