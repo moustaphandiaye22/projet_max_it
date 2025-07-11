@@ -25,8 +25,21 @@ class SecurityController extends AbstractController {
         $this->renderHtml('login/login');
     }
     public function accueil() {
-        // Affiche la vraie vue d'accueil (templates/acceuil.php)
-        $this->renderHtml('acceuil');
+        // Récupérer l'utilisateur connecté
+        $user = $this->session->get('user');
+        $solde = 0;
+        $transactions = [];
+        if ($user && isset($user['id'])) {
+            
+            // Utiliser le service pour récupérer le compte et les transactions
+            $compteService = \app\core\App::getDependency('compteService');
+            $comptes = $compteService->getCompteByPersonneId($user['id']);
+            if (!empty($comptes) && isset($comptes[0])) {
+                $solde = $comptes[0]->getSolde();
+                $transactions = $compteService->getTransactionsByCompteId($comptes[0]->getId());
+            }
+        }
+        $this->renderHtml('acceuil', ['solde' => $solde, 'transactions' => $transactions]);
     }
 
     

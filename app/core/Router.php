@@ -12,14 +12,12 @@ public static function resolvePath(){
     require_once __DIR__ . '/App.php';
     \app\core\App::initDependencies();
 
-    $middlewaresMap = getMiddlewares();
 
     $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH); // On ne garde que le chemin
     $uri = rtrim($uri, '/');
     if ($uri === '') $uri = '/';
 
-    // On construit la clé de la même façon que dans Route.web.php
-    // Correction : ne pas doubler le port si déjà présent dans APP_URL
+    
     $baseUrl = rtrim(APP_URL, '/');
     $parsedUrl = parse_url($baseUrl);
     $hasPort = isset($parsedUrl['port']);
@@ -35,9 +33,17 @@ public static function resolvePath(){
         // Gestion des middlewares
         if (isset($route['middleware']) && is_array($route['middleware'])) {
             foreach ($route['middleware'] as $middlewareKey) {
-                if (isset($middlewaresMap[$middlewareKey])) {
-                    $callable = $middlewaresMap[$middlewareKey];
-                    $callable((object)['getUri' => function() use ($uri) { return $uri; }], function(){});
+                if (isset($middlewares[$middlewareKey])) {
+                    $middlewareClass = $middlewares[$middlewareKey];
+                    $middlewareInstance = new $middlewareClass();
+                    // On accepte handle OU __invoke
+                    if (method_exists($middlewareInstance, 'handle')) {
+                        $middlewareInstance->handle((object)['getUri' => function() use ($uri) { return $uri; }], function(){});
+                    } elseif (is_callable($middlewareInstance)) {
+                        $middlewareInstance((object)['getUri' => function() use ($uri) { return $uri; }], function(){});
+                    } else {
+                        throw new \Exception("Aucune méthode handle ou __invoke n'existe dans le middleware $middlewareClass");
+                    }
                 }
             }
         }

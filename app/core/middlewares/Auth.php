@@ -3,12 +3,18 @@ namespace App\Core\middlewares;
 
 use App\Core\Session;
 
-// Middleware d'authentification générale
-function AuthMiddleware($request, $next) {
-    $session = Session::getInstance();
-    if (!$session->isset('user')) {
-        header('Location: /login');
-        exit();
+
+class Auth{
+
+
+    public function __invoke($request, $next): void
+    {
+        $session = Session::getInstance();
+        if (!$session->isAuthenticated()) {
+            header('Location: /login');
+            exit;
+        }
+        $next(); 
     }
-    return $next($request);
+
 }

@@ -44,5 +44,21 @@ class Transaction{
     public function toJson(): string {
         return json_encode($this->toArray());
     }
+    public function getMontant(): float {
+        return $this->montant;
+    }
+    public function getDatetransaction(): \DateTime {
+        return $this->datetransaction;
+    }
+    public function getType(): string {
+        return $this->type;
+    }
+    public function setId(int $id): void {
+        $this->id = $id;
+    }
+    // Ajout du getter getId pour Transaction
+    public function getId(): int {
+        return $this->id;
+    }
 
 }

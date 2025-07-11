@@ -14,9 +14,13 @@ class SecurityService
 
     public function seConnecter(string $login, string $password): ?Personne
     {
-        return $this->personneRepository->SelectByLoginAndPassword($login, $password);
+        $personne = $this->personneRepository->SelectByLogin($login);
+        if ($personne && password_verify($password, $personne->getPassword())) {
+            return $personne;
+        }
+        return null;
     }
     public function creerCompte(Personne $personne) {
-        return $this->personneRepository->insert($personne);
+        return $this->personneRepository->insertPersonne($personne);
     }
 }

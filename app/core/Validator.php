@@ -53,4 +53,29 @@ class Validator
     {
         self::$errors = [];
     }
+
+    public static function isSenegalesePhone(string $key, string $numero, string $message = "Numéro de téléphone invalide"): bool
+    {
+        if (!self::isEmpty($key, $numero, "Le numéro de téléphone est obligatoire")) {
+            return false;
+        }
+        if (!preg_match('/^(77|78|70|76|75)[0-9]{7}$/', $numero)) {
+            self::addError($key, $message);
+            return false;
+        }
+        return true;
+    }
+
+    public static function isSenegaleseCni(string $key, string $cni, string $message = "Numéro CNI invalide"): bool
+    {
+        if (!self::isEmpty($key, $cni, "Le numéro de carte identité est obligatoire")) {
+            return false;
+        }
+        
+        if (!preg_match('/^[0-9]{13}$/', $cni)) {
+            self::addError($key, $message);
+            return false;
+        }
+        return true;
+    }
 }

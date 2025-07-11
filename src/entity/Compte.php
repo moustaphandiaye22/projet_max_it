@@ -12,14 +12,14 @@ class Compte extends AbstractEntity{
     private int $numerotelephone;
     private \DateTime $datecreation;
     private $type= 'principal';
-    private ?Personne $personne = null; // Correction : éviter la récursion infinie
+    private ?Personne $personne = null;
     private array $transaction;
     
     public function __construct($id=0,$solde=0,$numerotelephone=0,)
     {
         $this->type = 'principal';
         $this->transaction= [];
-        $this->personne = null; // Correction : éviter la récursion infinie
+        $this->personne = null; 
         
     }
     
@@ -33,6 +33,28 @@ class Compte extends AbstractEntity{
   
     public function addTransaction(Transaction $transaction): void {
         $this->transaction[] = $transaction;
+    }
+    public function setId(int $id): void {
+        $this->id = $id;
+    }
+    public function setSolde(float $solde): void {
+        $this->solde = $solde;
+    }
+    public function setPersonne(Personne $personne): void {
+        $this->personne = $personne;
+    }
+
+    public function getSolde(): float {
+        return $this->solde;
+    }
+    public function getNumeroTelephone(): int {
+        return $this->numerotelephone;
+    }
+    public function getType(): string {
+        return $this->type;
+    }
+    public function getId(): int {
+        return $this->id;
     }
 
 public function toArray(): array

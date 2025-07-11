@@ -12,10 +12,7 @@ class PersonneService {
         $this->personneRepository = $personneRepository;
     }
 
-    public function seConnecter(string $login, string $password): ?Personne
-    {
-        return $this->personneRepository->SelectByLoginAndPassword($login, $password);
-    }
+  
     
 
 }
