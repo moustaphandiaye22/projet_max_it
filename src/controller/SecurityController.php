@@ -3,11 +3,11 @@
 namespace src\controller;
 
 use app\core\abstract\AbstractController;
-use app\core\Validators;                
 use PDO;
 use app\core\Session;
 use src\entity\Personne;
-use App\Core\Validator;
+use App\Core\Validator; 
+use app\config\ErrorMessage;
 
 class SecurityController extends AbstractController {
     private $securityService;
@@ -31,7 +31,6 @@ class SecurityController extends AbstractController {
         $transactions = [];
         if ($user && isset($user['id'])) {
             
-            // Utiliser le service pour récupérer le compte et les transactions
             $compteService = \app\core\App::getDependency('compteService');
             $comptes = $compteService->getCompteByPersonneId($user['id']);
             if (!empty($comptes) && isset($comptes[0])) {
@@ -50,10 +49,10 @@ class SecurityController extends AbstractController {
             $login = $_POST['login'] ?? '';
             $password = $_POST['password'] ?? '';
             if (empty($login)) {
-                $errors['login'][] = 'Le login est obligatoire';
+                $errors['login'][] = ErrorMessage::required->value;
             }
             if (empty($password)) {
-                $errors['password'][] = 'Le mot de passe est obligatoire';
+                $errors['password'][] = ErrorMessage::required->value;
             }
             $old['login'] = $login;
             if (empty($errors)) {
@@ -63,13 +62,14 @@ class SecurityController extends AbstractController {
                     header('Location: ' . rtrim($_ENV['APP_URL'], '/') . '/accueil');
                     exit;
                 } else {
-                    $errors['login'][] = 'Identifiants incorrects ou accès non autorisé.';
+                    $errors['login'][] = ErrorMessage::invalidCredentials->value;
                 }
             }
             return $this->renderHtml('login/login', ['errors' => $errors, 'old' => $old]);
         }
         $this->renderHtml('login/login', ['errors' => $errors, 'old' => $old]);
     }
+
     public function logout() {
         header('Location: ' . rtrim($_ENV['APP_URL'], '/') . '/');
         exit;
@@ -83,23 +83,33 @@ class SecurityController extends AbstractController {
         $old = $_POST ?? [];
         $success = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            Validator::reset();
-            Validator::isEmpty('nom', $_POST['nom'] ?? '', 'Le nom est obligatoire');
-            Validator::isEmpty('prenom', $_POST['prenom'] ?? '', 'Le prénom est obligatoire');
-            Validator::isEmpty('adresse', $_POST['adresse'] ?? '', 'L\'adresse est obligatoire');
-            Validator::isEmpty('login', $_POST['login'] ?? '', 'Le login est obligatoire');
-            Validator::isEmpty('password', $_POST['password'] ?? '', 'Le mot de passe est obligatoire');
-            Validator::isEmpty('numero_telephone', $_POST['numero_telephone'] ?? '', 'Le numéro de téléphone est obligatoire');
-            Validator::isEmpty('numero_carte_identite', $_POST['numero_carte_identite'] ?? '', 'Le numéro de CNI est obligatoire');
+            $validator = \App\Core\Validator::getInstance();
+            $rules = [
+                'nom' => ['required'],
+                'prenom' => ['required'],
+                'adresse' => ['required'],
+                'login' => ['required'],
+                'password' => ['required', ['minLength', 8], 'isPassword'],
+                'numero_telephone' => ['required', 'isSenegalPhone'],
+                'numero_carte_identite' => ['required', 'isCNI'],
+                'photo_recto_carte_identite' => ['required'],
+                'photo_verso_carte_identite' => ['required'],
+            ];
+            $data = [
+                'nom' => $_POST['nom'] ?? '',
+                'prenom' => $_POST['prenom'] ?? '',
+                'adresse' => $_POST['adresse'] ?? '',
+                'login' => $_POST['login'] ?? '',
+                'password' => $_POST['password'] ?? '',
+                'numero_telephone' => $_POST['numero_telephone'] ?? '',
+                'numero_carte_identite' => $_POST['numero_carte_identite'] ?? '',
+                'photo_recto_carte_identite' => $_FILES['photo_recto_carte_identite']['name'] ?? '',
+                'photo_verso_carte_identite' => $_FILES['photo_verso_carte_identite']['name'] ?? '',
+            ];
             if (empty($_POST['terms'])) {
-                Validator::addError('terms', 'Vous devez accepter les termes d\'utilisation');
+                Validator::addError('terms', ErrorMessage::termsNotAccepted->value);
             }
-            Validator::isEmpty('photo_recto_carte_identite', $_FILES['photo_recto_carte_identite']['name'] ?? '', 'La photo recto est obligatoire');
-            Validator::isEmpty('photo_verso_carte_identite', $_FILES['photo_verso_carte_identite']['name'] ?? '', 'La photo verso est obligatoire');
-            if (!Validator::isValid()) {
-                $errors = Validator::getAllErrors();
-                return $this->renderHtml('login/register', ['errors' => $errors, 'old' => $old, 'success' => $success]);
-            }
+            $validator->validate($data, $rules);
             require_once __DIR__ . '/../../public/images/uploads.php';
             list($okRecto, $rectoResult) = uploadImage($_FILES['photo_recto_carte_identite']);
             list($okVerso, $versoResult) = uploadImage($_FILES['photo_verso_carte_identite']);
@@ -108,6 +118,23 @@ class SecurityController extends AbstractController {
             }
             if (!$okVerso) {
                 $errors['photo_verso_carte_identite'][] = $versoResult;
+            }
+            // Fusionner les erreurs du Validator (statique)
+            $validatorErrors = Validator::getAllErrors();
+            if (!empty($validatorErrors)) {
+                foreach ($validatorErrors as $field => $msgs) {
+                    foreach ((array)$msgs as $msg) {
+                        $errors[$field][] = $msg;
+                    }
+                }
+            }
+            // Vérification unicité téléphone et CNI
+            $personneRepo = new \src\repository\PersonneRepository();
+            if (!empty($data['numero_telephone']) && $personneRepo->existsByTelephone($data['numero_telephone'])) {
+                $errors['numero_telephone'][] = ErrorMessage::phoneExists->value;
+            }
+            if (!empty($data['numero_carte_identite']) && $personneRepo->existsByCni($data['numero_carte_identite'])) {
+                $errors['numero_carte_identite'][] = ErrorMessage::cniExists->value;
             }
             if (!empty($errors)) {
                 return $this->renderHtml('login/register', ['errors' => $errors, 'old' => $old, 'success' => $success]);
@@ -127,11 +154,18 @@ class SecurityController extends AbstractController {
             );
             $result = $this->securityService->creerCompte($personne);
             if (isset($result['errors'])) {
-                $errors = $result['errors'];
+                foreach ($result['errors'] as $field => $msgs) {
+                    foreach ((array)$msgs as $msg) {
+                        $errors[$field][] = $msg;
+                    }
+                }
                 return $this->renderHtml('login/register', ['errors' => $errors, 'old' => $old, 'success' => $success]);
             }
-            $success = 'Compte créé avec succès !';
-            // On reste sur la page et on affiche le message de succès
+            if (!$result) {
+                $errors['sql'][] = ErrorMessage::accountCreationError->value;
+                return $this->renderHtml('login/register', ['errors' => $errors, 'old' => $old, 'success' => $success]);
+            }
+            $success = ErrorMessage::accountCreationSuccess->value;
             return $this->renderHtml('login/register', ['errors' => [], 'old' => [], 'success' => $success]);
         }
         $this->renderHtml('login/register', ['errors' => $errors, 'old' => $old, 'success' => $success]);

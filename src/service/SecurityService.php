@@ -3,13 +3,16 @@
 namespace src\service;
 use src\entity\Personne;
 use src\repository\PersonneRepository;
+use  src\repository\CompteRepository;
 class SecurityService
 {
     private $personneRepository;
+    private $compteRepository;
 
-    public function __construct(PersonneRepository $personneRepository)
+    public function __construct(PersonneRepository $personneRepository, CompteRepository $compteRepository)
     {
         $this->personneRepository = $personneRepository;
+        $this->compteRepository = $compteRepository;
     }
 
     public function seConnecter(string $login, string $password): ?Personne

@@ -1,44 +1,103 @@
 <?php
+
 namespace App\Core;
+use app\config\ErrorMessage;
+
 class Validator
 {
+
     private static array $errors = [];
+    private static $instance = null;
+    private static array $rules;
 
-    public static function isEmail(string $key, string $email, string $message = "Email is invalid"): bool
+    public function __construct()
     {
-        if (!self::isEmpty($key, $email, "Email is required")) {
-            return false;
-        }
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            self::addError($key, $message);
-            return false;
-        }
-        return true;
+        self::$errors = [];
+        self::$rules = [
+            "required" => function ($key, $value, $message = ErrorMessage::required) {
+                if (empty($value)) {
+                    self::addError($key, $message instanceof ErrorMessage ? $message->value : $message);
+                }
+            },
+            "minLength" => function ($key, $value, $minLength, $message = ErrorMessage::invalidLength) {
+                if (strlen($value) < $minLength) {
+                    self::addError($key, $message instanceof ErrorMessage ? $message->value : $message);
+                }
+            },
+            "isMail" => function ($key, $value, $message = ErrorMessage::invalidEmail) {
+                if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                    self::addError($key, $message instanceof ErrorMessage ? $message->value : $message);
+                }
+            },
+            "isPassword" => function ($key, $value, $message = ErrorMessage::invalidPassword) {
+                if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/', $value)) {
+                    self::addError($key, $message instanceof ErrorMessage ? $message->value : $message);
+                }
+            },
+            "isSenegalPhone" => function ($key, $value, $message = ErrorMessage::invalidPhone) {
+                $value = preg_replace('/\D/', '', $value);
+                $prefixes = ['70', '75', '76', '77', '78'];
+                if (!(strlen($value) === 9 && in_array(substr($value, 0, 2), $prefixes))) {
+                    self::addError($key, $message instanceof ErrorMessage ? $message->value : $message);
+                }
+            },
+            "isCNI" => function ($key, $value, $message = ErrorMessage::invalidCni) {
+                $value = preg_replace('/\D/', '', $value);
+                if (!preg_match('/^1\d{12}$/', $value)) {
+                    self::addError($key, $message instanceof ErrorMessage ? $message->value : $message);
+                }
+            },
+        ];
     }
 
-    public static function isEmpty(string $key, $value, string $message = "Ce champ est requis"): bool
+    public static function getInstance()
     {
-        if (empty($value)) {
-            self::addError($key, $message);
-            return false;
+        if (self::$instance === null) {
+            self::$instance = new Validator();
         }
-        return true;
+        return self::$instance;
     }
 
-    public static function addError(string $key, string $message): void
+    public function validate(array $data, array $rules): bool
     {
-        if (!isset(self::$errors[$key])) {
-            self::$errors[$key] = [];
+        foreach ($rules as $field => $fieldRules) {
+            $value = $data[$field] ?? null;
+
+            foreach ($fieldRules as $rule) {
+                if (is_string($rule)) {
+                    $callback = self::$rules[$rule] ?? null;
+                    if ($callback) {
+                        $callback($field, $value);
+                    }
+                } elseif (is_array($rule)) {
+                    $ruleName = $rule[0];
+                    $params = array_slice($rule, 1);
+                    $callback = self::$rules[$ruleName] ?? null;
+
+                    if ($callback) {
+                        $callback($field, $value, ...$params);
+                    }
+                }
+            }
         }
-        self::$errors[$key][] = $message;
+
+        return empty(self::$errors);
     }
 
-    public static function getError(string $key): array
+    public static function addError(string $field, string $message)
     {
-        $errors = self::$errors[$key] ?? [];
-        return is_array($errors) ? $errors : [$errors];
+        self::$errors[$field] = $message;
     }
 
+    public static function getErrors()
+    {
+        return self::$errors;
+    }
+
+    public static function resetError()
+    {
+        self::$errors = [];
+    }
     public static function isValid(): bool
     {
         return empty(self::$errors);
@@ -49,33 +108,12 @@ class Validator
         return self::$errors;
     }
 
-    public static function reset(): void
+    public static function reset()
     {
         self::$errors = [];
     }
-
-    public static function isSenegalesePhone(string $key, string $numero, string $message = "Numéro de téléphone invalide"): bool
+    public function isauthenticated(): bool
     {
-        if (!self::isEmpty($key, $numero, "Le numéro de téléphone est obligatoire")) {
-            return false;
-        }
-        if (!preg_match('/^(77|78|70|76|75)[0-9]{7}$/', $numero)) {
-            self::addError($key, $message);
-            return false;
-        }
-        return true;
-    }
-
-    public static function isSenegaleseCni(string $key, string $cni, string $message = "Numéro CNI invalide"): bool
-    {
-        if (!self::isEmpty($key, $cni, "Le numéro de carte identité est obligatoire")) {
-            return false;
-        }
-        
-        if (!preg_match('/^[0-9]{13}$/', $cni)) {
-            self::addError($key, $message);
-            return false;
-        }
-        return true;
+        return isset($_SESSION['user']) && !empty($_SESSION['user']);
     }
 }
