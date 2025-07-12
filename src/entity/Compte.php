@@ -9,68 +9,95 @@ use src\entity\Personne;
 class Compte extends AbstractEntity{
     private int $id;
     private float $solde;
-    private int $numerotelephone;
+    private string $numero_telephone;
     private \DateTime $datecreation;
-    private $type= 'principal';
+    private string $type = 'principal';
     private ?Personne $personne = null;
     private array $transaction;
-    
-    public function __construct($id=0,$solde=0,$numerotelephone=0,)
+
+    public function __construct($id = 0, $solde = 0, $numero_telephone = '')
     {
+        $this->id = $id;
+        $this->solde = $solde;
+        $this->numero_telephone = $numero_telephone;
         $this->type = 'principal';
-        $this->transaction= [];
-        $this->personne = null; 
-        
+        $this->transaction = [];
+        $this->personne = null;
+        $this->datecreation = new \DateTime();
     }
-    
-    public function getPersonne(): Personne {
+
+    public function getPersonne(): ?Personne {
         return $this->personne;
     }
-   
+
+    public function setPersonne(Personne $personne): void {
+        $this->personne = $personne;
+    }
+
     public function getTransaction(): array {
         return $this->transaction;
     }
-  
+
     public function addTransaction(Transaction $transaction): void {
         $this->transaction[] = $transaction;
     }
+
     public function setId(int $id): void {
         $this->id = $id;
     }
+
+    public function getId(): int {
+        return $this->id;
+    }
+
     public function setSolde(float $solde): void {
         $this->solde = $solde;
-    }
-    public function setPersonne(Personne $personne): void {
-        $this->personne = $personne;
     }
 
     public function getSolde(): float {
         return $this->solde;
     }
-    public function getNumeroTelephone(): int {
-        return $this->numerotelephone;
+
+    public function setNumeroTelephone(string $numero): void {
+        $this->numero_telephone = $numero;
     }
+
+    public function getNumeroTelephone(): string {
+        return $this->numero_telephone;
+    }
+
+    public function setType(string $type): void {
+        $this->type = $type;
+    }
+
     public function getType(): string {
         return $this->type;
     }
-    public function getId(): int {
-        return $this->id;
+
+    public function setDateCreation(\DateTime $date): void {
+        $this->datecreation = $date;
     }
 
-public function toArray(): array
+    public function getDateCreation(): \DateTime {
+        return $this->datecreation;
+    }
+
+    public function toArray(): array
     {
         return [
             'id' => $this->id,
             'solde' => $this->solde,
-            'numerotelephone' => $this->numerotelephone,
-            'datecreation' => $this->datecreation,
+            'numerotelephone' => $this->numero_telephone,
+            'datecreation' => $this->datecreation->format('Y-m-d'),
             'type' => $this->type,
         ];
     }
+
     public function toObject($data): object
     {
         return (object) $data;
     }
+
     public function toJson(): string
     {
         return json_encode($this->toArray());

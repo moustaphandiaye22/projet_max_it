@@ -14,15 +14,22 @@ class CompteRepository extends AbstractRepository
    
     public function insertCompte(Compte $compte): int
     {
-        $ql = "INSERT INTO compte (solde, numerotelephone, datecreation, type, client_id) VALUES (:solde, :numerotelephone, :datecreation, :type, :client_id)";
-        $stmt = $this->pdo->prepare($ql);
-        $stmt->bindValue(':solde', $compte->getSolde());
-        $stmt->bindValue(':numerotelephone', $compte->getNumeroTelephone());
-        $stmt->bindValue(':datecreation', (new \DateTime())->format('Y-m-d'));
-        $stmt->bindValue(':type', $compte->getType());
-        $stmt->bindValue(':client_id', $compte->getPersonne() ? $compte->getPersonne()->getId() : null, \PDO::PARAM_INT);
-        $stmt->execute();
-        return (int)$this->pdo->lastInsertId();
+        try {
+            $sql = "INSERT INTO compte (solde, numero_telephone, date_creation, type, client_id) 
+                    VALUES (:solde, :numero_telephone, :date_creation, :type, :client_id)";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':solde', $compte->getSolde());
+            $stmt->bindValue(':numero_telephone', $compte->getNumeroTelephone());
+            $stmt->bindValue(':date_creation', $compte->getDateCreation()->format('Y-m-d'));
+            $stmt->bindValue(':type', $compte->getType());
+            $stmt->bindValue(':client_id', $compte->getPersonne() ? $compte->getPersonne()->getId() : null, \PDO::PARAM_INT);
+            $stmt->execute();
+            return (int)$this->pdo->lastInsertId();
+        } catch (\PDOException $e) {
+            // Retourne -1 en cas d'erreur et log l'erreur
+            error_log('Erreur insertCompte: ' . $e->getMessage());
+            return -1;
+        }
     }
 
     public function update(): void
@@ -51,21 +58,29 @@ class CompteRepository extends AbstractRepository
     {
         $sql = "SELECT * FROM compte WHERE 1=1";
         $params = [];
-        if (isset($filtre['personne_id'])) {
+        if (isset($filtre['client_id'])) {
             $sql .= " AND client_id = :client_id";
-            $params[':client_id'] = $filtre['personne_id'];
+            $params[':client_id'] = $filtre['client_id'];
+        }
+        if (isset($filtre['id'])) {
+            $sql .= " AND id = :id";
+            $params[':id'] = $filtre['id'];
         }
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
-        $comptes = [];
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $compte = new \src\entity\Compte();
-            $compte->setId($row['id']);
-            $compte->setSolde($row['solde']);
-            // ...ajoute les autres setters si besoin...
-            $comptes[] = $compte;
+        $result = [];
+        while ($data = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $result[] = $this->toObject($data);
         }
-        return $comptes;
+        return $result;
+    }
+
+    private function toObject(array $data): ?\src\entity\Compte {
+        return new \src\entity\Compte(
+            $data['id'] ?? 0,
+            $data['solde'] ?? 0,
+            $data['numero_telephone'] ?? ''
+        );
     }
 
 

@@ -55,7 +55,6 @@ class Session {
         return $errors;
     }
 
-    // Vérifie si l'utilisateur est authentifié
     public function isAuthenticated() {
         return isset($_SESSION['user']);
     }

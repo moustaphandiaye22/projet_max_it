@@ -9,9 +9,7 @@ class TransactionRepository extends AbstractRepository
     {       
     }
 
-    /**
-     * Insertion spécifique d'une transaction avec gestion de la clé étrangère compte_id
-     */
+    
     public function insertTransaction(\src\entity\Transaction $transaction): void
     {
         $query = "INSERT INTO transaction (montant, datetransaction, type, compte_id) VALUES (:montant, :datetransaction, :type, :compte_id)";

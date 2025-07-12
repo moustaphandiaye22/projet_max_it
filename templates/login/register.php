@@ -29,8 +29,6 @@ if (!isset($old)) $old = [];
         <?= htmlspecialchars($success) ?>
     </div>
 <?php endif; ?>
-   
-
     <!-- Main Container -->
     <div class="flex items-center justify-center  p-4">
         <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-2xl h-auto flex flex-col justify-center">

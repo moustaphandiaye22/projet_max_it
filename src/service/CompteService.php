@@ -9,6 +9,7 @@ use src\entity\Personne;
 use src\entity\Compte;
 use src\entity\Transaction;
 use App\Core\App;
+use app\config\ErrorMessage;
 
 class CompteService {
     private $personneRepository;
@@ -27,36 +28,42 @@ class CompteService {
     public function creerCompteAvecTransaction(Personne $personne, Compte $compte) {
         try {
             $this->pdo->beginTransaction();
-            // 1. Insérer la personne
             $resultPersonne = $this->personneRepository->insertPersonne($personne);
             if (isset($resultPersonne['errors'])) {
                 $this->pdo->rollBack();
                 return $resultPersonne;
             }
-            // Récupérer la personne insérée
             $personneCree = $resultPersonne['personne'];
+            // Vérification de l'ID de la personne
+            if (!$personneCree->getId() || $personneCree->getId() <= 0) {
+                $this->pdo->rollBack();
+                return ['errors' => ['global' => ['Erreur lors de la création de la personne (ID manquant).']]];
+            }
             $compte->setPersonne($personneCree);
-            $this->compteRepository->insertCompte($compte);
+            $compte->setNumeroTelephone($personneCree->getNumeroTelephone());
 
+            $compteId = $this->compteRepository->insertCompte($compte);
+            if (!$compteId) {
+                $this->pdo->rollBack();
+                return ['errors' => ['global' => [ErrorMessage::accountCreationError->value]]];
+            }
+            $compte->setId($compteId);
+            $personneCree->addCompte($compte); 
 
-            // $transaction->setCompte($compte);
-            // $this->transactionRepository->insertTransaction($transaction);
-            // $this->pdo->commit();
-            // return [
-            //     'personne' => $personne,
-            //     'compte' => $compte,
-            //     'transaction' => $transaction
-            // ];
+            $this->pdo->commit();
+            return [
+                'personne' => $personneCree,
+                'compte' => $compte
+            ];
         } catch (\Exception $e) {
             $this->pdo->rollBack();
-            // Affichage détaillé de l'erreur SQL pour le debug
-            return ['errors' => ['global' => [$e->getMessage(), $e]]];
+            return ['errors' => ['global' => [$e->getMessage()]]];
         }
     }
 
     public function getCompteByPersonneId($personneId)
     {
-        return $this->compteRepository->selectBy(['personne_id' => $personneId]);
+        return $this->compteRepository->selectBy(['client_id' => $personneId]);
     }
 
     public function getTransactionsByCompteId($compteId)

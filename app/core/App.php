@@ -21,20 +21,23 @@ class App{
     public static function initDependencies(): void {
         // Instanciation séparée pour éviter les dépendances circulaires
         $personneRepository = new PersonneRepository();
+        $compteRepository = new CompteRepository();
+        $securityService = new \src\service\SecurityService($personneRepository, $compteRepository);
         $personneService = new PersonneService($personneRepository);
-        $securityService = new \src\service\SecurityService($personneRepository);
 
-        $compteRepository = new \src\repository\CompteRepository();
         $transactionRepository = new \src\repository\TransactionRepository();
         $compteService = new \src\service\CompteService($personneRepository, $compteRepository, $transactionRepository);
         $compteController = new \src\controller\CompteController($compteService);
         $transactionService = new \src\service\TransactionService($transactionRepository, $compteRepository);
+
 
         self::$dependencies = [
             "core" => [
                 "router" => new Router(),
                 "database" => Database::getInstance(),
                 "session" => Session::getInstance(),
+                "validator" => new Validator(),
+
                 
             ],
             "repository" => [

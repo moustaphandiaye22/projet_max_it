@@ -54,7 +54,7 @@ class Personne extends AbstractEntity {
             'photo_verso_carte_identite' => $this->photo_verso_carte_identite,
             'numero_carte_identite' => $this->numero_carte_identite,
             'type' => $this->type,
-            'compte' => $this->compte ? $this->compte->toArray() : null
+            'compte' => $this->compte instanceof \src\entity\Compte ? $this->compte->toArray() : $this->compte
         ];
     }
     public function toObject($data): object {
