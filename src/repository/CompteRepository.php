@@ -6,6 +6,10 @@ use App\Core\Abstract\AbstractRepository;
 
 class CompteRepository extends AbstractRepository
 {
+    public function __construct() {
+        parent::__construct();
+    }
+
     public function insert(): void
     {
        
@@ -24,9 +28,8 @@ class CompteRepository extends AbstractRepository
             $stmt->bindValue(':type', $compte->getType());
             $stmt->bindValue(':client_id', $compte->getPersonne() ? $compte->getPersonne()->getId() : null, \PDO::PARAM_INT);
             $stmt->execute();
-            return (int)$this->pdo->lastInsertId();
+            return (int)$this->pdo->lastInsertId('compte_id_seq');
         } catch (\PDOException $e) {
-            // Retourne -1 en cas d'erreur et log l'erreur
             error_log('Erreur insertCompte: ' . $e->getMessage());
             return -1;
         }
@@ -66,6 +69,10 @@ class CompteRepository extends AbstractRepository
             $sql .= " AND id = :id";
             $params[':id'] = $filtre['id'];
         }
+        if (isset($filtre['numero_telephone'])) {
+            $sql .= " AND numero_telephone = :numero_telephone";
+            $params[':numero_telephone'] = $filtre['numero_telephone'];
+        }
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         $result = [];
@@ -76,11 +83,31 @@ class CompteRepository extends AbstractRepository
     }
 
     private function toObject(array $data): ?\src\entity\Compte {
-        return new \src\entity\Compte(
+        $compte = new \src\entity\Compte(
             $data['id'] ?? 0,
             $data['solde'] ?? 0,
             $data['numero_telephone'] ?? ''
         );
+        if (isset($data['type'])) {
+            $compte->setType($data['type']);
+        }
+        return $compte;
+    }
+
+    public function updateType($compteId, $type) {
+        $sql = "UPDATE compte SET type = :type WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':type', $type);
+        $stmt->bindValue(':id', $compteId, \PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateSolde($compteId, $nouveauSolde) {
+        $sql = "UPDATE compte SET solde = :solde WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':solde', $nouveauSolde);
+        $stmt->bindValue(':id', $compteId);
+        $stmt->execute();
     }
 
 

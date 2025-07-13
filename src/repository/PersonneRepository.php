@@ -43,16 +43,15 @@ use PDO;
             $stmt->bindValue(':numero_carte_identite', $personne->getNumeroCarteIdentite());
             $stmt->bindValue(':type', $personne->getType());
             $stmt->execute();
-            $lastId = (int)$this->pdo->lastInsertId();
+            $lastId = (int)$this->pdo->lastInsertId('personne_id_seq');
             if ($lastId > 0) {
                 $personne->setId($lastId);
                 return ['personne' => $personne];
             } else {
-                return ['errors' => ['sql' => ['Erreur lors de l\'insertion de la personne (ID non généré).']]];
+                return ['errors' => ['sql' => ["Erreur lors de l'insertion de la personne (ID non généré)."]]];
             }
         } catch (\PDOException $e) {
-            // var_dump($personne);
-            // die();
+           
             // On retourne l'erreur SQL proprement
             return ['errors' => ['sql' => [$e->getMessage()]]];
         }
@@ -79,6 +78,13 @@ use PDO;
 
     public function selectById(int $id)
     {
+        $query = "SELECT * FROM personne WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindValue(':id', $id, \PDO::PARAM_INT);
+        $stmt->execute();
+        $data = $stmt->fetch(\PDO::FETCH_ASSOC);
+        if (!$data) return null;
+        return $this->toObject($data);
     }
 
     public function selectAll(): array
