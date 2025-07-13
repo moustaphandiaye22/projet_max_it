@@ -43,7 +43,7 @@ class CompteService {
             $compte->setNumeroTelephone($personneCree->getNumeroTelephone());
 
             $compteId = $this->compteRepository->insertCompte($compte);
-            if (!$compteId) {
+            if ($compteId <= 0) {
                 $this->pdo->rollBack();
                 return ['errors' => ['global' => [ErrorMessage::accountCreationError->value]]];
             }
@@ -69,6 +69,15 @@ class CompteService {
     public function getTransactionsByCompteId($compteId)
     {
         return $this->transactionRepository->selectBy(['compte_id' => $compteId]);
+    }
+    public function updateType($compteId, $type) {
+        $this->compteRepository->updateType($compteId, $type);
+    }
+    public function getPersonneRepository() {
+        return $this->personneRepository;
+    }
+    public function getCompteRepository() {
+        return $this->compteRepository;
     }
 }
 

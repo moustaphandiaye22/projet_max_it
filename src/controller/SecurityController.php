@@ -59,6 +59,10 @@ class SecurityController extends AbstractController {
                 $personne = $this->securityService->seConnecter($login, $password);
                 if ($personne && in_array($personne->getType(), ['client', 'servicecommercial'])) {
                     $this->session->set('user', $personne->toArray());
+                    if ($personne->getType() === 'servicecommercial') {
+                        header('Location: ' . rtrim($_ENV['APP_URL'], '/') . '/servicecommercial/compte');
+                        exit;
+                    }
                     header('Location: ' . rtrim($_ENV['APP_URL'], '/') . '/accueil');
                     exit;
                 } else {
@@ -74,8 +78,27 @@ class SecurityController extends AbstractController {
         header('Location: ' . rtrim($_ENV['APP_URL'], '/') . '/');
         exit;
     }
+
+
     public function register(){
         $this->renderHtml('login/register');
+    }
+
+
+    public function listTransactions() {
+        $user = $this->session->get('user');
+        if (!$user || !isset($user['id'])) {
+            header('Location: ' . rtrim($_ENV['APP_URL'], '/') . '/list_transaction');
+            exit;
+        }
+        $compteService = \app\core\App::getDependency('compteService');
+        $comptes = $compteService->getCompteByPersonneId($user['id']);
+        if (empty($comptes) || !isset($comptes[0])) {
+            $this->renderHtml('transactions/list', ['transactions' => []]);
+            return;
+        }
+        $transactions = $compteService->getTransactionsByCompteId($comptes[0]->getId());
+        $this->renderHtml('transactions/list', ['transactions' => $transactions]);
     }
 
     public function create() {
@@ -166,10 +189,19 @@ class SecurityController extends AbstractController {
                 return $this->renderHtml('login/register', ['errors' => $errors, 'old' => $old, 'success' => $success]);
             }
             $success = ErrorMessage::accountCreationSuccess->value;
+            // Envoi du SMS Twilio si numéro valide
+            if (!empty($_POST['numero_telephone'])) {
+                \App\Core\Message::sendTwilioSms(
+                    $_POST['numero_telephone'],
+                    'Votre inscription sur Max It a bien été prise en compte. Bienvenue !'
+                );
+            }
             return $this->renderHtml('login/register', ['errors' => [], 'old' => [], 'success' => $success]);
         }
         $this->renderHtml('login/register', ['errors' => $errors, 'old' => $old, 'success' => $success]);
     }    
+
+   
 
     public function store() {
         // Logic to store a new security-related resource
