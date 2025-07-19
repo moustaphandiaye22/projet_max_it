@@ -152,12 +152,12 @@
                             </svg>
                             <div class="text-sm font-medium">Paiement</div>
                         </div>
-                        <div class="action-card rounded-lg p-4 text-white text-center shadow hover:scale-105 transition">
+                        <a href="/transactions/transfert" class="action-card rounded-lg p-4 text-white text-center shadow hover:scale-105 transition">
                             <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8zM12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z"></path>
                             </svg>
                             <div class="text-sm font-medium">Transfert</div>
-                        </div>
+                        </a>
                         <div class="action-card rounded-lg p-4 text-white text-center shadow hover:scale-105 transition">
                             <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>

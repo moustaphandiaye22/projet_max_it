@@ -1,83 +1,99 @@
 <?php
 
-require_once dirname(__DIR__) . '/app/config/env.php';
+require_once dirname(__DIR__) . '/app/Config/env.php';
 
 $baseUrl = rtrim(APP_URL, '/');
 
 $path = [
     $baseUrl . '/' => [
-        'controller' => 'src\\controller\\SecurityController',
+        'controller' => 'Src\\Controller\\SecurityController',
         'action' => 'login',
         'middleware' => ['guest'],
     ],
     $baseUrl . '/accueil' => [
-        'controller' => 'src\\controller\\SecurityController',
+        'controller' => 'Src\\Controller\\SecurityController',
         'action' => 'accueil',
         'middleware' => ['auth'],
     ],
     $baseUrl . '/logout' => [
-        'controller' => 'src\\controller\\SecurityController',
+        'controller' => 'Src\\Controller\\SecurityController',
         'action' => 'logout',
         'middleware' => ['auth'],
     ],
     $baseUrl . '/login' => [
-        'controller' => 'src\\controller\\SecurityController',
+        'controller' => 'Src\\Controller\\SecurityController',
         'action' => 'login',
         'middleware' => ['guest'],
     ],
     $baseUrl . '/register' => [
-        'controller' => 'src\\controller\\SecurityController',
+        'controller' => 'Src\\Controller\\SecurityController',
         'action' => $_SERVER['REQUEST_METHOD'] === 'POST' ? 'create' : 'register',
         'middleware' => ['guest', 'cryptePassword'], 
     ],
     $baseUrl . '/ajouter-personne' => [
-        'controller' => 'src\\controller\\PersonneController',
+        'controller' => 'Src\\Controller\\PersonneController',
         'action' => 'create',
         'middleware' => ['auth'],
     ],
     $baseUrl . '/add_compte_secondaire' => [
-        'controller' => 'src\\controller\\CompteController',
+        'controller' => 'Src\\Controller\\CompteController',
         'action' => $_SERVER['REQUEST_METHOD'] === 'POST' ? 'create' : 'addCompteSecondaire',
         'middleware' => ['auth'],
     ],
     $baseUrl . '/list_transaction' => [
-        'controller' => 'src\\controller\\SecurityController',
+        'controller' => 'Src\\Controller\\SecurityController',
         'action' => 'listTransactions',
         'middleware' => ['auth'],
     ],
     $baseUrl . '/compte' => [
-        'controller' => 'src\\controller\\CompteController',
+        'controller' => 'Src\\Controller\\CompteController',
         'action' => 'index',
         'middleware' => ['auth'],
     ],
     $baseUrl . '/compte/set_principal' => [
-        'controller' => 'src\\controller\\CompteController',
+        'controller' => 'Src\\Controller\\CompteController',
         'action' => 'setPrincipal',
         'middleware' => ['auth'],
     ],
     $baseUrl . '/compte/add_secondaire' => [
-        'controller' => 'src\\controller\\CompteController',
+        'controller' => 'Src\\Controller\\CompteController',
         'action' => 'addCompteSecondaire',
         'middleware' => ['auth'],
     ],
     $baseUrl . '/compte/store' => [
-        'controller' => 'src\\controller\\CompteController',
+        'controller' => 'Src\\Controller\\CompteController',
         'action' => 'store',
         'middleware' => ['auth'],
     ],
     $baseUrl . '/transactions/liste' => [
-        'controller' => 'src\\controller\\CompteController',
+        'controller' => 'Src\\Controller\\CompteController',
         'action' => 'listeTransactions',
         'middleware' => ['auth'],
     ],
     $baseUrl . '/servicecommercial/compte' => [
-        'controller' => 'src\\controller\\CompteController',
+        'controller' => 'Src\\Controller\\CompteController',
         'action' => 'rechercherCompte',
         'middleware' => ['auth'],
     ],
     $baseUrl . '/servicecommercial/transactions' => [
-        'controller' => 'src\\controller\\CompteController',
+        'controller' => 'Src\\Controller\\CompteController',
         'action' => 'listeTransactions',
         'middleware' => ['auth'],
     ],
+    $baseUrl . '/transactions/depot' => [
+        'controller' => 'Src\\Controller\\TransactionController',
+        'action' => $_SERVER['REQUEST_METHOD'] === 'POST' ? 'depot' : 'depotForm',
+        'middleware' => ['auth'],       
+    ],
+    $baseUrl . '/transactions/transfert' => [
+        'controller' => 'Src\\Controller\\TransactionController',
+        'action' => $_SERVER['REQUEST_METHOD'] === 'POST' ? 'transfert' : 'transfertForm',
+        'middleware' => ['auth'],
+    ],
+    $baseUrl . '/transactions/annuler' => [
+        'controller' => 'Src\\Controller\\TransactionController',
+        'action' => 'annulerDepot',
+        'middleware' => ['auth'],
+    ],
+   
 ];

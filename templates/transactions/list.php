@@ -99,14 +99,15 @@
                         </p>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <div class="relative">
-                            <input type="text" placeholder="Search" class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
-                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                        </div>
-                        <button class="p-2 text-gray-400 hover:text-gray-600">
-                            <i class="fas fa-bell"></i>
-                        </button>
-                        <div class="w-8 h-8 bg-gray-800 rounded-full"></div>
+                        <a href="/transactions/depot" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded flex items-center">
+                            <i class="fas fa-plus mr-2"></i> Dépôt
+                        </a>
+                        <a href="/transactions/transfert" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded flex items-center">
+                            <i class="fas fa-exchange-alt mr-2"></i> Transfert
+                        </a>
+                        <a href="/transactions/depot#annulation" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded flex items-center">
+                            <i class="fas fa-times mr-2"></i> Annuler dépôt
+                        </a>
                     </div>
                 </div>
             </div>
@@ -176,6 +177,12 @@
                                                 <?php echo ($transaction['type'] === 'retrait') ? 'Débité' : 'Crédité'; ?>
                                             </span>
                                         </div>
+                                        <?php if (($transaction['type'] ?? '') === 'depot') : ?>
+                                            <form method="post" action="/transactions/annuler" class="ml-4" onsubmit="return confirm('Annuler ce dépôt ?');">
+                                                <input type="hidden" name="transaction_id" value="<?php echo $transaction['id'] ?? ''; ?>">
+                                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">Annuler</button>
+                                            </form>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             <?php endforeach; ?>

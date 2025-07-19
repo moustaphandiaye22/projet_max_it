@@ -56,22 +56,18 @@ if (!isset($old)) $old = [];
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Nom</label>
                         <input type="text" name="nom" placeholder="Enter nom" value="<?= htmlspecialchars(
-isset(
-$old['nom']) ? $old['nom'] : ''
-) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" >
-                        <?php if (!empty(
-$errors['nom'])): ?>
+                            isset($old['nom']) ? $old['nom'] : '') ?>" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" >
+                        <?php if (!empty($errors['nom'])): ?>
                             <span class="text-red-500 text-xs"><?php echo implode('<br>', $errors['nom']); ?></span>
                         <?php endif; ?>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Prenom</label>
                         <input type="text" name="prenom" placeholder="Enter prenom" value="<?= htmlspecialchars(
-isset(
-$old['prenom']) ? $old['prenom'] : ''
-) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" >
-                        <?php if (!empty(
-$errors['prenom'])): ?>
+                        isset($old['prenom']) ? $old['prenom'] : '') ?>"
+                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent" >
+                        <?php if (!empty($errors['prenom'])): ?>
                             <span class="text-red-500 text-xs"><?php echo implode('<br>', $errors['prenom']); ?></span>
                         <?php endif; ?>
                     </div>
@@ -159,8 +155,7 @@ $errors['prenom'])): ?>
                     <input type="checkbox" name="terms" class="h-4 w-4 text-orange-500 focus:ring-orange-400 border-gray-300 rounded" >
                     <label class="ml-2 text-sm text-gray-700">Accepter les termes d'utilisation</label>
                 </div>
-                <?php if (!empty(
-$errors['terms'])): ?>
+                <?php if (!empty($errors['terms'])): ?>
                     <span class="text-red-500 text-xs"><?php echo implode('<br>', $errors['terms']); ?></span>
                 <?php endif; ?>
 
