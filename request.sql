@@ -1,4 +1,4 @@
-REATE TYPE type_personne AS ENUM ('client', 'servicecommercial');
+CREATE TYPE type_personne AS ENUM ('client', 'servicecommercial');
 CREATE TYPE type_compte AS ENUM ('principal', 'secondaire');
 CREATE TYPE type_transaction AS ENUM ('depot', 'retrait', 'paiement');
 

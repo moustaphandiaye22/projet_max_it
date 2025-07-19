@@ -1,0 +1,6 @@
+{
+    "scripts": {
+        "database:migrate": "php -r 'require __DIR__ . "/Migrations/Migration.php"; (new \\App\\Migrations\\Migration())->run();'",
+        "database:seed": "php -r 'require __DIR__ . "/Seeders/Seeder.php"; (new \\App\\Seeders\\Seeder())->run();'"
+    }
+}

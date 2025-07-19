@@ -1,0 +1,30 @@
+# Liste des services (dépendances)
+services:
+  database:
+    class: App\Core\Database
+  session:
+    class: App\Core\Session
+  validator:
+    class: App\Core\Validator
+  message:
+    class: App\Core\Message
+  router:
+    class: App\Core\Router
+  compteRepository:
+    class: Src\Repository\CompteRepository
+  personneRepository:
+    class: Src\Repository\PersonneRepository
+  transactionRepository:
+    class: Src\Repository\TransactionRepository
+  compteService:
+    class: Src\Service\CompteService
+    arguments: [personneRepository, compteRepository, transactionRepository]
+  personneService:
+    class: Src\Service\PersonneService
+    arguments: [personneRepository]
+  securityService:
+    class: Src\Service\SecurityService
+    arguments: [personneRepository, compteRepository]
+  transactionService:
+    class: Src\Service\TransactionService
+    arguments: [transactionRepository, compteRepository]

@@ -57,6 +57,7 @@
                         <th class="py-2 px-4 border-b">Date</th>
                         <th class="py-2 px-4 border-b">Type</th>
                         <th class="py-2 px-4 border-b">Montant</th>
+                        <th class="py-2 px-4 border-b">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -65,6 +66,18 @@
                             <td class="py-2 px-4 border-b"><?= htmlspecialchars($t['datetransaction'] ?? ($t['date_transaction'] ?? '')) ?></td>
                             <td class="py-2 px-4 border-b"><?= htmlspecialchars($t['type']) ?></td>
                             <td class="py-2 px-4 border-b"><?= number_format($t['montant'], 2, ',', ' ') ?> F CFA</td>
+                            <td class="py-2 px-4 border-b">
+                                <button onclick="toggleOptions('options-<?= $t['id'] ?? '' ?>')" class="bg-orange-500 text-white px-2 py-1 rounded">Options</button>
+                                <div id="options-<?= $t['id'] ?? '' ?>" class="hidden mt-2">
+                                    <a href="/transactions/detail?id=<?= $t['id'] ?? '' ?>" class="text-blue-600 hover:underline block">Voir détail</a>
+                                    <?php if (($t['type'] ?? '') === 'depot'): ?>
+                                        <form method="post" action="/transactions/annuler" onsubmit="return confirm('Annuler ce dépôt ?');">
+                                            <input type="hidden" name="transaction_id" value="<?= $t['id'] ?? '' ?>">
+                                            <button type="submit" class="text-red-600 hover:underline">Annuler</button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -74,5 +87,13 @@
         <?php endif; ?>
     </div>
 </div>
+<script>
+function toggleOptions(id) {
+    var el = document.getElementById(id);
+    if (el) {
+        el.classList.toggle('hidden');
+    }
+}
+</script>
 </body>
 </html>
