@@ -5,10 +5,7 @@ use DateTime;
 use Src\Entity\Compte;
 
 class Transaction{
-    public function getReference(): string {
-        return $this->reference;
-    }
-
+   
     private int $id;
     private string $reference;
     private float $montant;
@@ -22,9 +19,13 @@ class Transaction{
         $this->reference = $reference;
         $this->montant = $montant;
         $this->type = $type;
-        $this->compte = null; // Correction : éviter la récursion infinie
+        $this->compte = null; 
         $this->datetransaction = new DateTime();
     }
+     public function getReference(): string {
+        return $this->reference;
+    }
+
     
     public function getCompte(): ?Compte {
         return $this->compte;

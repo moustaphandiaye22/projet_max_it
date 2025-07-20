@@ -11,14 +11,20 @@ use App\Config\ErrorMessage;
 
 class SecurityController extends AbstractController {
     private $securityService;
+    private $compteService;
     protected Session $session;
-    public function __construct($securityService = null) {
+    public function __construct($securityService = null, $compteService = null) {
         parent::__construct();
         $this->layout = 'base.layout';
         if ($securityService) {
             $this->securityService = $securityService;
         } else {
             $this->securityService = \App\Core\App::getDependency('securityService');
+        }
+        if ($compteService) {
+            $this->compteService = $compteService;
+        } else {
+            $this->compteService = \App\Core\App::getDependency('compteService');
         }
     }
     public function index() {
@@ -176,7 +182,16 @@ class SecurityController extends AbstractController {
                 $_POST['numero_carte_identite'] ?? '',
                 $_POST['type'] ?? 'client'
             );
-            $result = $this->securityService->creerCompte($personne);
+            // Création du compte associé
+            $compte = new \Src\Entity\Compte(
+                0,
+                0, // solde initial
+                $_POST['numero_telephone'] ?? '',
+                new \DateTime(),
+                'principal',
+                $personne
+            );
+            $result = $this->compteService->creerCompteAvecTransaction($personne, $compte);
             if (isset($result['errors'])) {
                 foreach ($result['errors'] as $field => $msgs) {
                     foreach ((array)$msgs as $msg) {
@@ -200,7 +215,7 @@ class SecurityController extends AbstractController {
             return $this->renderHtml('login/register', ['errors' => [], 'old' => [], 'success' => $success]);
         }
         $this->renderHtml('login/register', ['errors' => $errors, 'old' => $old, 'success' => $success]);
-    }    
+    }
 
    
 
