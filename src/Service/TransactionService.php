@@ -19,7 +19,6 @@ class TransactionService {
         $this->pdo = Database::getInstance();
     }
 
-    // Effectuer un dépôt
     public function depot($compteId, $montant, $userId) {
         try {
             $comptes = $this->compteRepository->selectBy(['id' => $compteId]);
@@ -46,16 +45,13 @@ class TransactionService {
         }
     }
 
-    // Annuler un dépôt (si non retiré)
     public function annulerDepot($transactionId, $userId) {
         try {
-            // 1. Récupérer la transaction
             $transactions = $this->transactionRepository->selectBy(['id' => $transactionId]);
             if (empty($transactions)) {
                 return ['success' => false, 'error' => 'transaction_introuvable'];
             }
             $transaction = $transactions[0];
-            // Vérifier le type
             if (!isset($transaction['type']) || $transaction['type'] !== 'depot') {
                 return ['success' => false, 'error' => 'type_invalide'];
             }

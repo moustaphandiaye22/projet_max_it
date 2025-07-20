@@ -64,15 +64,15 @@ class TransactionController extends AbstractController {
     public function annulerDepot() {
         $user = $this->session->get('user');
         if (!$user || !isset($_POST['transaction_id'])) {
-            header('Location: /compte?error=annulation');
+            header('Location: /transactions/liste?error=annulation');
             exit;
         }
         $transactionId = (int)$_POST['transaction_id'];
         $result = $this->transactionService->annulerDepot($transactionId, $user['id']);
         if ($result['success']) {
-            header('Location: /compte?success=annulation');
+            header('Location: /transactions/liste?success=annulation');
         } else {
-            header('Location: /compte?error=' . $result['error']);
+            header('Location: /transactions/liste?error=' . urlencode($result['error']));
         }
         exit;
     }

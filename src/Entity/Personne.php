@@ -31,7 +31,7 @@ class Personne extends AbstractEntity {
         $this->photo_verso_carte_identite = $photo_verso_carte_identite;
         $this->numero_carte_identite = $numero_carte_identite;
         $this->type = $type;
-        $this->compte = null; // Correction : éviter la récursion infinie
+        $this->compte = null; 
     }
 
     
