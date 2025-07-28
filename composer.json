@@ -3,8 +3,10 @@
     "description": "projet max it",
     "autoload": {
         "psr-4": {
-            "Src\\": "src/",
-            "App\\": "app/"
+        "Src\\": "src/",
+        "App\\": "app/",
+        "App\\Migrations\\": "Migrations/",
+        "App\\Seeders\\": "Seeders/"
         }
     },
     "authors": [

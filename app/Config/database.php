@@ -1,8 +1,8 @@
 <?php
 return [
-    'host' => $_ENV['DB_HOST'] ?? 'localhost',
-    'dbname' => $_ENV['DB_NAME'] ?? 'gestion_max_it',
-    'username' => $_ENV['DB_USER'] ?? 'pguser',
+    'host' => $_ENV['DB_HOST'] ?? 'aws-0-eu-north-1.pooler.supabase.com',
+    'dbname' => $_ENV['DB_NAME'] ?? 'postgres',
+    'username' => $_ENV['DB_USER'] ?? 'postgres.arlexbtjmppdyadcyepw',
     'password' => $_ENV['DB_PASS'] ?? 'pgpassword',
     'charset' => 'UTF8',
     'options' => [
