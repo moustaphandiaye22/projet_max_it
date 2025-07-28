@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: maxitsa-app
+    env: docker
+    dockerfilePath: ./dockerfile
+    region: frankfurt
+    plan: free
+    branch: main
+    buildCommand: ""
+    startCommand: ""
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: maxitsa-db
+          property: host
+      - key: DB_NAME
+        fromDatabase:
+          name: maxitsa-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: maxitsa-db
+          property: user
+      - key: DB_PASS
+        fromDatabase:
+          name: maxitsa-db
+          property: password
+      - key: WOYOFAL_API_URL
+        value: https://appwoyofal-zfte.onrender.com
+      - key: APP_ENV
+        value: production
+
+databases:
+  - name: maxitsa-db
+    databaseName: maxitsa_db
+    user: maxitsa_user
+    region: frankfurt
+    plan: free

@@ -150,7 +150,7 @@
                             <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"></path>
                             </svg>
-                            <div class="text-sm font-medium">Paiement</div>
+                            <div class="text-sm font-medium">Paiement woyofal</div>
                         </a>
                         <a href="/transactions/transfert" class="action-card rounded-lg p-4 text-white text-center shadow hover:scale-105 transition">
                             <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
