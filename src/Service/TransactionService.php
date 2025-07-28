@@ -9,6 +9,68 @@ use Src\Entity\Compte;
 use App\Core\Database;
 
 class TransactionService {
+
+    /**
+     * Achat de code Woyofal : vérifie le solde, génère le code, enregistre la transaction et prépare le reçu
+     */
+    public function achatWoyofal($compteId, $numeroCompteur, $montant, $userId) {
+        // 1. Vérifier le compte principal
+        $comptes = $this->compteRepository->selectBy(['id' => $compteId]);
+        if (empty($comptes)) {
+            return ['success' => false, 'error' => 'Compte introuvable'];
+        }
+        /** @var Compte $compte */
+        $compte = $comptes[0];
+        if (strtolower($compte->getType()) !== 'principal') {
+            return ['success' => false, 'error' => 'Seul un compte principal peut acheter un code Woyofal'];
+        }
+        // 2. Vérifier le montant
+        if ($montant <= 0) {
+            return ['success' => false, 'error' => 'Montant invalide'];
+        }
+        if ($compte->getSolde() < $montant) {
+            return ['success' => false, 'error' => 'Solde insuffisant'];
+        }
+        // 3. Débiter le compte et enregistrer la transaction
+        try {
+            $this->pdo->beginTransaction();
+            $compte->setSolde($compte->getSolde() - $montant);
+            $this->compteRepository->updateSolde($compte->getId(), $compte->getSolde());
+            // Générer un code de recharge simulé (aléatoire)
+            $codeRecharge = strtoupper(substr(md5(uniqid((string)mt_rand(), true)), 0, 12));
+            // Simuler le nombre de KW, la tranche et le prix unitaire (à adapter selon la vraie logique)
+            $prixUnitaire = 120; // FCFA par KW (exemple)
+            $nbreKW = floor($montant / $prixUnitaire);
+            $tranche = ($montant < 10000) ? 'Social' : 'Normal';
+            // Créer la transaction
+            $reference = uniqid('WOYOFAL_');
+            $transaction = new Transaction(0, $reference, $montant, 'paiement');
+            $transaction->setCompte($compte);
+            $this->transactionRepository->insertTransaction($transaction);
+            $this->pdo->commit();
+            // Préparer les infos du reçu
+            // Récupérer le client (nom/prénom) via le compte
+            $personne = method_exists($compte, 'getPersonne') ? $compte->getPersonne() : null;
+            $nom = $personne && method_exists($personne, 'getNom') ? $personne->getNom() : '';
+            $prenom = $personne && method_exists($personne, 'getPrenom') ? $personne->getPrenom() : '';
+            $dateHeure = (new \DateTime())->format('d/m/Y H:i');
+            $recu = [
+                'nom' => $nom,
+                'prenom' => $prenom,
+                'numero_compteur' => $numeroCompteur,
+                'code_recharge' => $codeRecharge,
+                'date_heure' => $dateHeure,
+                'tranche' => $tranche,
+                'prix_unitaire' => $prixUnitaire,
+                'montant' => $montant,
+                'nbre_kw' => $nbreKW
+            ];
+            return ['success' => true, 'recu' => $recu];
+        } catch (\Exception $e) {
+            $this->pdo->rollBack();
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
     private $transactionRepository;
     private $compteRepository;
     private $pdo;
