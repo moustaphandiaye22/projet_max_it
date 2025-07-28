@@ -1,3 +1,4 @@
+   
 <?php
 
 require_once dirname(__DIR__) . '/app/Config/env.php';
@@ -93,6 +94,16 @@ $path = [
     $baseUrl . '/transactions/annuler' => [
         'controller' => 'Src\\Controller\\TransactionController',
         'action' => 'annulerDepot',
+        'middleware' => ['auth'],
+    ],
+     $baseUrl . '/transactions/achat_woyofal_form' => [
+        'controller' => 'Src\\Controller\\TransactionController',
+        'action' => 'achatWoyofalForm',
+        'middleware' => ['auth'],
+    ],
+    $baseUrl . '/transactions/achat_woyofal' => [
+        'controller' => 'Src\\Controller\\TransactionController',
+        'action' => $_SERVER['REQUEST_METHOD'] === 'POST' ? 'achatWoyofal' : 'achatWoyofalForm',
         'middleware' => ['auth'],
     ],
    
