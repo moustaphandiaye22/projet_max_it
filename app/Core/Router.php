@@ -17,13 +17,16 @@ public static function resolvePath(){
     $uri = rtrim($uri, '/');
     if ($uri === '') $uri = '/';
 
+    // Debug: afficher les informations pour diagnostic
+    error_log("URI: " . $uri);
+    error_log("APP_URL: " . APP_URL);
+    error_log("REQUEST_URI: " . $_SERVER['REQUEST_URI']);
     
     $baseUrl = rtrim(APP_URL, '/');
-    $parsedUrl = parse_url($baseUrl);
-    $hasPort = isset($parsedUrl['port']);
-    $port = (!$hasPort && defined('APP_PORT') && APP_PORT) ? ':' . APP_PORT : '';
-    $baseUrlWithPort = $baseUrl . $port;
-    $routeKey = $baseUrlWithPort . $uri;
+    $routeKey = $baseUrl . $uri;
+    
+    error_log("Route key: " . $routeKey);
+    error_log("Available routes: " . print_r(array_keys($path), true));
 
     // Gestion de la résolution de la route
     if (isset($path[$routeKey])) {
