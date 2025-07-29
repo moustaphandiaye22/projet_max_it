@@ -29,7 +29,7 @@ class CompteController extends AbstractController {
      public function index(){
         $user = $this->session->get('user');
         if ($user && ($user['type'] ?? '') === 'servicecommercial') {
-            header('Location: /servicecommercial/compte');
+            header('Location: ' . rtrim(APP_URL, '/') . '/servicecommercial/compte');
             exit;
         }
         $comptes = [];
@@ -63,14 +63,14 @@ class CompteController extends AbstractController {
      public function store() {
         $user = $this->session->get('user');
         if (!$user || !isset($user['id']) || empty($_POST['numero_telephone'])) {
-            header('Location: /compte');
+            header('Location: ' . rtrim(APP_URL, '/') . '/compte');
             exit;
         }
         $numero = trim($_POST['numero_telephone']);
         $solde = isset($_POST['solde']) && is_numeric($_POST['solde']) ? floatval($_POST['solde']) : 0;
         $personne = $this->compteService->getPersonneRepository()->selectById($user['id']);
         if (!$personne) {
-            header('Location: /compte');
+            header('Location: ' . rtrim(APP_URL, '/') . '/compte');
             exit;
         }
         // Créer le compte secondaire
@@ -92,7 +92,7 @@ class CompteController extends AbstractController {
                 $inserted = $this->compteService->getCompteRepository()->insertCompte($compteSecondaire);
                 $this->compteService->getCompteRepository()->updateSolde($principal->getId(), $principal->getSolde() - $solde);
             } else {
-                header('Location: /compte/add_secondaire?error=solde');
+                header('Location: ' . rtrim(APP_URL, '/') . '/compte/add_secondaire?error=solde');
                 exit;
             }
         } else {
@@ -100,10 +100,10 @@ class CompteController extends AbstractController {
         }
         if (!$inserted || $inserted <= 0) {
             // Erreur d'insertion
-            header('Location: /compte/add_secondaire?error=insertion');
+            header('Location: ' . rtrim(APP_URL, '/') . '/compte/add_secondaire?error=insertion');
             exit;
         }
-        header('Location: /compte');
+        header('Location: ' . rtrim(APP_URL, '/') . '/compte');
         exit;
     }
      public function destroy(){
@@ -114,7 +114,7 @@ class CompteController extends AbstractController {
      public function setPrincipal() {
         $user = $this->session->get('user');
         if (!$user || !isset($user['id']) || empty($_POST['compte_id'])) {
-            header('Location: /compte');
+            header('Location: ' . rtrim(APP_URL, '/') . '/compte');
             exit;
         }
         $compteId = (int)$_POST['compte_id'];
@@ -129,13 +129,13 @@ class CompteController extends AbstractController {
         }
         // Mettre le compte choisi en principal
         $this->compteService->updateType($compteId, 'principal');
-        header('Location: /compte');
+        header('Location: ' . rtrim(APP_URL, '/') . '/compte');
         exit;
     }
     public function rechercherCompte() {
         $user = $this->session->get('user');
         if (!$user || ($user['type'] ?? '') !== 'servicecommercial') {
-            header('Location: /accueil');
+            header('Location: ' . rtrim(APP_URL, '/') . '/accueil');
             exit;
         }
         $numero = isset($_GET['numero']) ? trim($_GET['numero']) : '';
@@ -167,7 +167,7 @@ class CompteController extends AbstractController {
     public function listeTransactions() {
         $user = $this->session->get('user');
         if (!$user || ($user['type'] ?? '') !== 'servicecommercial') {
-            header('Location: /accueil');
+            header('Location: ' . rtrim(APP_URL, '/') . '/accueil');
             exit;
         }
         $compteId = isset($_GET['compte_id']) ? intval($_GET['compte_id']) : 0;

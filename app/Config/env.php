@@ -15,6 +15,7 @@ define('DB_USER', $_ENV['DB_USER'] ?? 'postgres.arlexbtjmppdyadcyepw');
 define('DB_PASS', $_ENV['DB_PASS'] ?? 'pgpassword');
 define('APP_URL', $_ENV['APP_URL'] ?? 'http://localhost');
 define('APP_PORT', $_ENV['APP_PORT'] ?? 8000);
+define('APP_ENV', $_ENV['APP_ENV'] ?? 'development');
 
 
 
