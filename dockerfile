@@ -22,9 +22,6 @@ WORKDIR /var/www/html
 # Copy composer files
 COPY composer.json composer.lock ./
 
-# Copy .env file
-COPY .env .env
-
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
