@@ -1,0 +1,21 @@
+RewriteEngine On
+
+# Handle front controller pattern
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Disable server signature
+ServerSignature Off
+
+# Hide PHP version
+<IfModule mod_headers.c>
+    Header unset X-Powered-By
+</IfModule>
