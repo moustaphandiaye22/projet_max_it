@@ -64,13 +64,13 @@ class SecurityController extends AbstractController {
             if (empty($errors)) {
                 $personne = $this->securityService->seConnecter($login, $password);
                 if ($personne && in_array($personne->getType(), ['client', 'servicecommercial'])) {
-                    $this->session->set('user', $personne->toArray());
-                    if ($personne->getType() === 'servicecommercial') {
-                        header('Location: ' . rtrim($_ENV['APP_URL'], '/') . '/servicecommercial/compte');
-                        exit;
-                    }
-                    header('Location: ' . rtrim($_ENV['APP_URL'], '/') . '/accueil');
-                    exit;
+                $this->session->set('user', $personne->toArray());
+                if ($personne->getType() === 'servicecommercial') {
+                header('Location: ' . rtrim(APP_URL, '/') . '/servicecommercial/compte');
+                exit;
+                }
+                header('Location: ' . rtrim(APP_URL, '/') . '/accueil');
+                exit;
                 } else {
                     $errors['login'][] = ErrorMessage::invalidCredentials->value;
                 }
@@ -82,7 +82,7 @@ class SecurityController extends AbstractController {
 
     public function logout() {
         session_destroy();
-        header('Location: ' . rtrim($_ENV['APP_URL'], '/') . '/');
+        header('Location: ' . rtrim(APP_URL, '/') . '/');
         
     }
 
@@ -95,7 +95,7 @@ class SecurityController extends AbstractController {
     public function listTransactions() {
         $user = $this->session->get('user');
         if (!$user || !isset($user['id'])) {
-            header('Location: ' . rtrim($_ENV['APP_URL'], '/') . '/list_transaction');
+            header('Location: ' . rtrim(APP_URL, '/') . '/list_transaction');
             exit;
         }
         $compteService = \App\Core\App::getDependency('compteService');
