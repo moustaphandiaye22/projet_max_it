@@ -50,16 +50,16 @@ class TransactionController extends AbstractController {
     public function depot() {
         $user = $this->session->get('user');
         if (!$user || !isset($_POST['compte_id']) || !isset($_POST['montant'])) {
-            header('Location: /transactions/depot?error=missing');
+            header('Location: ' . rtrim(APP_URL, '/') . '/transactions/depot?error=missing');
             exit;
         }
         $compteId = (int)$_POST['compte_id'];
         $montant = (float)$_POST['montant'];
         $result = $this->transactionService->depot($compteId, $montant, $user['id']);
         if ($result['success']) {
-            header('Location: /transactions/liste?success=depot');
+            header('Location: ' . rtrim(APP_URL, '/') . '/transactions/liste?success=depot');
         } else {
-            header('Location: /transactions/depot?error=' . $result['error']);
+            header('Location: ' . rtrim(APP_URL, '/') . '/transactions/depot?error=' . $result['error']);
         }
         exit;
     }
@@ -67,15 +67,15 @@ class TransactionController extends AbstractController {
     public function annulerDepot() {
         $user = $this->session->get('user');
         if (!$user || !isset($_POST['transaction_id'])) {
-            header('Location: /transactions/liste?error=annulation');
+            header('Location: ' . rtrim(APP_URL, '/') . '/transactions/liste?error=annulation');
             exit;
         }
         $transactionId = (int)$_POST['transaction_id'];
         $result = $this->transactionService->annulerDepot($transactionId, $user['id']);
         if ($result['success']) {
-            header('Location: /transactions/liste?success=annulation');
+            header('Location: ' . rtrim(APP_URL, '/') . '/transactions/liste?success=annulation');
         } else {
-            header('Location: /transactions/liste?error=' . urlencode($result['error']));
+            header('Location: ' . rtrim(APP_URL, '/') . '/transactions/liste?error=' . urlencode($result['error']));
         }
         exit;
     }
@@ -83,7 +83,7 @@ class TransactionController extends AbstractController {
     public function transfert() {
         $user = $this->session->get('user');
         if (!$user || !isset($_POST['from_compte_id']) || !isset($_POST['to_compte_id']) || !isset($_POST['montant'])) {
-            header('Location: /compte?error=transfert');
+            header('Location: ' . rtrim(APP_URL, '/') . '/compte?error=transfert');
             exit;
         }
         $fromId = (int)$_POST['from_compte_id'];
@@ -91,9 +91,9 @@ class TransactionController extends AbstractController {
         $montant = (float)$_POST['montant'];
         $result = $this->transactionService->transfert($fromId, $toId, $montant, $user['id']);
         if ($result['success']) {
-            header('Location: /transactions/liste?success=transfert');
+            header('Location: ' . rtrim(APP_URL, '/') . '/transactions/liste?success=transfert');
         } else {
-            header('Location: /compte?error=' . urlencode($result['error']));
+            header('Location: ' . rtrim(APP_URL, '/') . '/compte?error=' . urlencode($result['error']));
         }
         exit;
     }
@@ -117,7 +117,7 @@ class TransactionController extends AbstractController {
     public function achatWoyofal() {
         $user = $this->session->get('user');
         if (!$user || empty($_POST['compte_id']) || empty($_POST['numero_compteur']) || empty($_POST['montant'])) {
-            header('Location: /transactions/achat_woyofal_form?error=Champs obligatoires manquants');
+            header('Location: ' . rtrim(APP_URL, '/') . '/transactions/achat_woyofal_form?error=Champs obligatoires manquants');
             exit;
         }
         $compteId = (int)$_POST['compte_id'];
@@ -129,7 +129,7 @@ class TransactionController extends AbstractController {
             $this->renderHtml('transactions/recu_woyofal', $result['recu']);
         } else {
             $error = isset($result['error']) ? $result['error'] : 'Erreur lors de l\'achat';
-            header('Location: /transactions/achat_woyofal_form?error=' . urlencode($error));
+            header('Location: ' . rtrim(APP_URL, '/') . '/transactions/achat_woyofal_form?error=' . urlencode($error));
         }
         exit;
     }

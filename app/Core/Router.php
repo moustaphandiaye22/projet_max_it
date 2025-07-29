@@ -6,24 +6,20 @@ namespace App\Core;
 class Router {
    
 public static function resolvePath(){
-    require_once dirname(__DIR__, 2) . '/app/Config/env.php';
-    require_once dirname(__DIR__, 2) . '/app/Config/middlewares.php';
-    require dirname(__DIR__, 2) . '/routes/route.web.php';
-    require_once __DIR__ . '/App.php';
-    \App\Core\App::initDependencies();
+    try {
+        require_once dirname(__DIR__, 2) . '/app/Config/env.php';
+        require_once dirname(__DIR__, 2) . '/app/Config/middlewares.php';
+        require dirname(__DIR__, 2) . '/routes/route.web.php';
+        require_once __DIR__ . '/App.php';
+        \App\Core\App::initDependencies();
 
 
     $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH); // On ne garde que le chemin
     $uri = rtrim($uri, '/');
     if ($uri === '') $uri = '/';
-
     
     $baseUrl = rtrim(APP_URL, '/');
-    $parsedUrl = parse_url($baseUrl);
-    $hasPort = isset($parsedUrl['port']);
-    $port = (!$hasPort && defined('APP_PORT') && APP_PORT) ? ':' . APP_PORT : '';
-    $baseUrlWithPort = $baseUrl . $port;
-    $routeKey = $baseUrlWithPort . $uri;
+    $routeKey = $baseUrl . $uri;
 
     // Gestion de la résolution de la route
     if (isset($path[$routeKey])) {
@@ -65,6 +61,15 @@ public static function resolvePath(){
         http_response_code(404);
         echo "Page non trouvée";
         return;
+    }
+    } catch (\Exception $e) {
+        error_log("Router Error: " . $e->getMessage());
+        http_response_code(500);
+        if (defined('APP_ENV') && APP_ENV === 'production') {
+            echo "Une erreur s'est produite.";
+        } else {
+            echo "Erreur: " . $e->getMessage();
+        }
     }
 }
 }
